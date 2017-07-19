@@ -1,0 +1,37 @@
+{
+  "id": "/sandbox-1/movies-ui",
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 3005,
+          "hostPort": 0,
+          "labels": {
+            "VIP_0": "/sandbox-1/movies-ui:3005"
+          },
+          "protocol": "tcp",
+          "name": "port3005"
+        }
+      ],
+      "image": "node"
+    }
+  },
+  "cpus": 0.2,
+  "mem": 728,
+  "disk": 2048,
+  "fetch": [
+    {
+      "uri": "https://s3-us-west-1.amazonaws.com/instream-processing-sample-artifacts/ui.tar.gz",
+      "executable": false,
+      "cache": false
+    }
+  ],
+  "env": {
+    "CASSANDRA_HOST": "192.168.65.111",
+    "CASSANDRA_PORT": "10011"
+  },
+  "cmd": "cd ${MESOS_SANDBOX}/webclient && npm install && WEB_CLIENT_PORT=3005 node server/server.js"
+}

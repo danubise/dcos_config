@@ -1,0 +1,67 @@
+{
+  "id": "/sandbox-1/cassandra",
+  "cmd": "cd ${MESOS_SANDBOX}/cassandra-schema && ./apply_schema.sh & start",
+  "instances": 1,
+  "cpus": 0.1,
+  "mem": 512,
+  "disk": 2048,
+  "gpus": 0,
+  "constraints": [
+    [
+      "hostname",
+      "UNIQUE"
+    ]
+  ],
+  "fetch": [
+    {
+      "uri": "https://s3-us-west-1.amazonaws.com/instream-processing-sample-artifacts/cassandra-schema.tar.gz",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    }
+  ],
+  "backoffSeconds": 1,
+  "backoffFactor": 1.15,
+  "maxLaunchDelaySeconds": 3600,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "poklet/cassandra",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 9042,
+          "hostPort": 10011,
+          "servicePort": 10007,
+          "protocol": "tcp",
+          "name": "port9042",
+          "labels": {
+            "VIP_0": "/sandbox-1/cassandra:9042"
+          }
+        },
+        {
+          "containerPort": 9160,
+          "hostPort": 10012,
+          "servicePort": 10008,
+          "protocol": "tcp",
+          "name": "port9160",
+          "labels": {
+            "VIP_1": "/sandbox-1/cassandra:9160"
+          }
+        }
+      ],
+      "privileged": false,
+      "forcePullImage": false
+    }
+  },
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 1,
+    "maximumOverCapacity": 1
+  },
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 300,
+    "expungeAfterSeconds": 600
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "requirePorts": true
+}

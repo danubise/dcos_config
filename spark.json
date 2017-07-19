@@ -1,0 +1,94 @@
+{
+  "id": "/sandbox-1/spark",
+  "cmd": "cd ${MESOS_SANDBOX}/dictionary-populator && bash ./populator-runner.sh && cd ${MESOS_SANDBOX}/in-stream-tweets-analyzer && bash ./streaming-runner.sh",
+  "instances": 0,
+  "cpus": 0.5,
+  "mem": 1524,
+  "disk": 0,
+  "gpus": 0,
+  "fetch": [
+    {
+      "uri": "https://s3-us-west-1.amazonaws.com/instream-processing-sample-artifacts/in-stream-tweets-analyzer.tar.gz",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    },
+    {
+      "uri": "https://s3-us-west-1.amazonaws.com/instream-processing-sample-artifacts/dictionary-populator.tar.gz",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    }
+  ],
+  "backoffSeconds": 1,
+  "backoffFactor": 1.15,
+  "maxLaunchDelaySeconds": 3600,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "sequenceiq/spark:1.6.0",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8088,
+          "hostPort": 8088,
+          "servicePort": 10003,
+          "protocol": "tcp",
+          "name": "port8088",
+          "labels": {
+            "VIP_0": "/sandbox-1/spark:8088"
+          }
+        },
+        {
+          "containerPort": 8042,
+          "hostPort": 8042,
+          "servicePort": 10004,
+          "protocol": "tcp",
+          "name": "port8042",
+          "labels": {
+            "VIP_1": "/sandbox-1/spark:8042"
+          }
+        },
+        {
+          "containerPort": 4040,
+          "hostPort": 4040,
+          "servicePort": 10005,
+          "protocol": "tcp",
+          "name": "port4040",
+          "labels": {
+            "VIP_2": "/sandbox-1/spark:4040"
+          }
+        },
+        {
+          "containerPort": 2122,
+          "hostPort": 2122,
+          "servicePort": 10006,
+          "protocol": "tcp",
+          "name": "port2122",
+          "labels": {
+            "VIP_3": "/sandbox-1/spark:2122"
+          }
+        }
+      ],
+      "privileged": false,
+      "forcePullImage": false
+    }
+  },
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 1,
+    "maximumOverCapacity": 1
+  },
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 300,
+    "expungeAfterSeconds": 600
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "requirePorts": true,
+  "env": {
+    "CASSANDRA_HOST": "192.168.65.111",
+    "REDIS_HOST": "192.168.65.111",
+    "REDIS_PORT": "10013",
+    "CASSANDRA_PORT": "10011",
+    "KAFKA_BROKER_LIST": "192.168.65.111:10014"
+  }
+}
